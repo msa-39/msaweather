@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <Button
+        android:id="@+id/buttonGetWeather"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="getWeather"
+        android:text="Получить погоду" />
+
+    <TextView
+        android:id="@+id/weatherText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Погода будет ТУТ!"/>
+
+    <Button
+        android:id="@+id/buttonSendSms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="sendSms"
+        android:text="Отправить СМС" />
+
+    <TextView
+        android:id="@+id/sendSMSres"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Результат отправки СМС тут!"/>
+
+</LinearLayout>
