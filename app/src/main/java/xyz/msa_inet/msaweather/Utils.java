@@ -15,6 +15,7 @@ public class Utils {
 
     public static ForecastInfo[] WeatherInfo = new ForecastInfo[2];
 //    public static ArrayList<ForecastInfo> WeatherInfo;
+    public static SmsInfo SmsResultTxt = new SmsInfo();
 
     public static String calcDate(String format, String data) {
         if (data == null || data.isEmpty()) return "";

@@ -69,6 +69,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         Log.d("MSA Weather onCompleteSendSms","Complete");
         TextView smsResult = (TextView)findViewById(R.id.sendSMSres);
 
+//        if Utils.SmsResultTxt.req_status
+        smsResText += "Статус соединения со шлюзом " + Utils.SmsResultTxt.req_status;
+
+        smsResText += "\n" + "Статус отправки сообщения " + Utils.SmsResultTxt.sms_status;
         smsResult.setText(smsResText);
     }
 
