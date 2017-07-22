@@ -15,10 +15,10 @@ public class DownloadDataTask extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) { // httpConnection("http://mysite.ru","POST")
         if (params.length < 1) return "";
         String uri = params[0];
-        Log.d("URL = ",uri);
+        Log.d("MSA Weather URL = ",uri);
 
         String metod = params[1]; //GET or POST
-        Log.d("Method = ",metod);
+        Log.d("MSA Weather Method = ",metod);
 
         BufferedReader reader = null;
         HttpURLConnection c;
@@ -26,42 +26,42 @@ public class DownloadDataTask extends AsyncTask<String, Void, String> {
 
         try {
             URL url = new URL(uri);
-            Log.d("1","1");
+//            Log.d("1","1");
 
             c = (HttpURLConnection) url.openConnection();
-            Log.d("1","2");
+//            Log.d("1","2");
 
             c.setRequestMethod(metod);
-            Log.d("1","3");
+//            Log.d("1","3");
 
             c.setReadTimeout(10000);
-            Log.d("1","4");
+//            Log.d("1","4");
 
             c.connect();
-            Log.d("1","5");
+//            Log.d("1","5");
 
             reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
-            Log.d("1","6");
+//            Log.d("1","6");
 
             StringBuilder buf = new StringBuilder();
-            Log.d("1","7");
+//            Log.d("1","7");
 
             String line = null;
-            Log.d("1","8");
+//            Log.d("1","8");
 
             while ((line = reader.readLine()) != null) {
                 buf.append(line + "\n");
-                Log.d("Buf Line",line);
+                Log.d("MSA Weather Buf Line",line);
             }
             reader.close();
-            Log.d("Reader close","OK");
+//            Log.d("MSA Weather Reader close","OK");
 
             c.disconnect();
-            Log.d("Connection disconnect","OK");
+//            Log.d("MSA Weather Connection disconnect","OK");
             return(buf.toString());
 
         }catch(Exception e){
-            Log.e("Exception GET Weather","Exception");
+            Log.e("MSA Weather Exception GET Weather","Exception");
 //            c.disconnect();
             return "";
         }

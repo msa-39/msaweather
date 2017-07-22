@@ -25,7 +25,7 @@ public class Utils {
     }
 
     public static String get_wind_dir(int deg) {
-        String[] l = {"С ","СВ"," В","ЮВ","Ю ","ЮЗ"," З","СЗ"};
+        String[] l = {"С","СВ","В","ЮВ","Ю","ЮЗ","З","СЗ"};
         int step;
         int min;
         int max;
@@ -47,6 +47,6 @@ public class Utils {
         if (data == null || data.isEmpty()) return "";
         double mbar = Double.valueOf(data);
         int mmrs = (int) Math.round((mbar / 1.3332));
-        return String.valueOf(mmrs) + " мм р.с.";
+        return String.valueOf(mmrs);// + " мм р.с.";
     }
 }

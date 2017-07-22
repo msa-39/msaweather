@@ -32,7 +32,7 @@ public class SMS {
 
         String smsUTF = null;
         try {
-            smsUTF = URLEncoder.encode(smsTOsend,"UTF-8");
+            smsUTF = URLEncoder.encode(smsTOsend.substring(0,69),"UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -47,20 +47,20 @@ public class SMS {
                         JSONObject a = new JSONObject(result);
                         Utils.SmsResultTxt.req_status = a.getString(FIELD_REQ_STATUS);
                         Utils.SmsResultTxt.req_status_code = a.getString(FIELD_REQ_STATUS_CODE);
-                        Log.d("req_status_code",Utils.SmsResultTxt.req_status_code);
+//                        Log.d("MSA Weather req_status_code",Utils.SmsResultTxt.req_status_code);
 
                         if (Utils.SmsResultTxt.req_status_code.equals("100")) { // Запрос выполнен успешно (нет ошибок в авторизации, проблем с отправителем, итд...)
 
                             Utils.SmsResultTxt.sms_status = a.getJSONObject(FIELD_SMS).getJSONObject(to_phone).getString(FIELD_SMS_STATUS);
                             Utils.SmsResultTxt.sms_status_code = a.getJSONObject(FIELD_SMS).getJSONObject(to_phone).getString(FIELD_SMS_STATUS_CODE);
-                            Log.d("sms_status_code",Utils.SmsResultTxt.sms_status_code);
+//                            Log.d("MSA Weather sms_status_code",Utils.SmsResultTxt.sms_status_code);
 
                             if (!Utils.SmsResultTxt.sms_status_code.equals("100")) { // Ошибка отправки сообщения на конкретный номер
                                  Utils.SmsResultTxt.sms_status_text = a.getJSONObject(FIELD_SMS).getJSONObject(to_phone).getString(FIELD_SMS_STATUS_TEXT);
                             } else Utils.SmsResultTxt.sms_id = a.getJSONObject(FIELD_SMS).getJSONObject(to_phone).getString(FIELD_SMS_ID);
 
                         } else Utils.SmsResultTxt.req_status_text = a.getString(FIELD_REQ_STATUS_TEXT);
-                        Log.d("MSA Weather JsonConverterSMS","DONE");
+                        Log.d("MSA Weather JsonConvertSMS","DONE");
 
                         if (listener != null) listener.onCompleteSendSms();
                     } catch (Exception e) {

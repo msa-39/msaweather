@@ -21,7 +21,8 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
      * is download data on progress
      */
     static Boolean onProcess = false;
-    public static String weatherTXT = "";
+    public static String[] weatherTXT = new String[2];
+//    weatherTXT[0] = "" ; weatherTXT[1]="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,29 +38,40 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     @Override
     public void onCompleteGetWeather() {
         onProcess = false;
-        weatherTXT = "";
+        String weatherMSG = "";
         TextView weatherText = (TextView)findViewById(R.id.weatherText);
         if (Utils.WeatherInfo.length > 0 ) {
             for (int i = 0; i < Utils.WeatherInfo.length; ++i) {
-                weatherTXT += Utils.WeatherInfo[i].date;
-                weatherTXT += " " + Utils.WeatherInfo[i].weather;
-                weatherTXT += "\n" + "Ут "  + Utils.WeatherInfo[i].mon_temp + "°";
-                weatherTXT += "\n" + "Дн "  + Utils.WeatherInfo[i].day_temp + "°";
-                weatherTXT += "\n" + "Веч " + Utils.WeatherInfo[i].evn_temp + "°";
-                weatherTXT += "\n" + "Вет " + Utils.WeatherInfo[i].wind_speed + "м/с " + Utils.WeatherInfo[i].wind;
-                weatherTXT += "\n" + "Дав " + Utils.WeatherInfo[i].pressure;
-                weatherTXT += "\n" + "Вл "  + Utils.WeatherInfo[i].humidity + "%";
+                if (i < 1) weatherTXT[i] = "Сегодня"; else weatherTXT[i] = "Завтра";
+                //weatherTXT += Utils.WeatherInfo[i].date;
+                weatherTXT[i] += " " + Utils.WeatherInfo[i].weather;
+                weatherTXT[i] += "\n" + "Ут "  + Utils.WeatherInfo[i].mon_temp + "°";
+                weatherTXT[i] += "\n" + "Дн "  + Utils.WeatherInfo[i].day_temp + "°";
+                weatherTXT[i] += "\n" + "Веч " + Utils.WeatherInfo[i].evn_temp + "°";
+                weatherTXT[i] += "\n" + "Вет " + Utils.WeatherInfo[i].wind_speed + "м/с " + Utils.WeatherInfo[i].wind;
+                weatherTXT[i] += "\n" + "Дав " + Utils.WeatherInfo[i].pressure;
+                weatherTXT[i] += "\n" + "Вл "  + Utils.WeatherInfo[i].humidity + "%";
                 if (i < 1) {
-                    weatherTXT += "\n";
-                    weatherTXT += "\n";
+                    weatherTXT[i] += "\n";
+                    weatherTXT[i] += "\n";
                 }
+                weatherMSG += weatherTXT[i];
             }
         }
-        weatherText.setText(weatherTXT);
+        weatherText.setText(weatherMSG);
     }
 
     public void sendSms (View v){
-        SMS.SendSms(this,weatherTXT,this);
+
+        for (int i = 0; i < 2; ++i) {
+            try {
+                Log.d("MSA Weather Lenth of SMS is",String.valueOf(weatherTXT[i].length()));
+                SMS.SendSms(this,weatherTXT[i],this);
+            } catch (Exception e){
+                Log.e("MSA Weather Send SMS from main","EROOR");
+                System.out.println("Exception "+ e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -69,10 +81,21 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         Log.d("MSA Weather onCompleteSendSms","Complete");
         TextView smsResult = (TextView)findViewById(R.id.sendSMSres);
 
-//        if Utils.SmsResultTxt.req_status
-        smsResText += "Статус соединения со шлюзом " + Utils.SmsResultTxt.req_status;
+        if (Utils.SmsResultTxt.req_status.equals("OK")) {
+            if (Utils.SmsResultTxt.sms_status.equals("OK")) {
+                smsResText += "СМС успешно отправлено." + "\n";
+                smsResText += "ID сообщения - " + Utils.SmsResultTxt.sms_id + "\n";
+            } else {
+                smsResText += "СМС НЕ отправлено!" + "\n";
+                smsResText += "Код ошибки: " + Utils.SmsResultTxt.sms_status_code +"\n";
+                smsResText += "Текст ошибки: " + Utils.SmsResultTxt.sms_status_text +"\n";
+            }
+        } else {
+            smsResText += "Запрос на отправку СМС НЕ выполнился!" + "\n";
+            smsResText += "Код ошибки: " + Utils.SmsResultTxt.req_status_code +"\n";
+            smsResText += "Текст ошибки: " + Utils.SmsResultTxt.req_status_text +"\n";
+        }
 
-        smsResText += "\n" + "Статус отправки сообщения " + Utils.SmsResultTxt.sms_status;
         smsResult.setText(smsResText);
     }
 
