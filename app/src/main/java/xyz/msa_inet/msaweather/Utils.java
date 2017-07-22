@@ -1,10 +1,6 @@
 package xyz.msa_inet.msaweather;
 
-import android.content.Context;
-
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**

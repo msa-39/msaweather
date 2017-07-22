@@ -5,7 +5,7 @@ package xyz.msa_inet.msaweather;
  */
 import java.io.Serializable;
 
-public class SmsInfo {
+public class SmsInfo implements Serializable {
     public String req_status;
     public String req_status_code;
     public String req_status_text;

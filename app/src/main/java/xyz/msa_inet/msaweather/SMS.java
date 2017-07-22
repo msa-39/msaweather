@@ -2,7 +2,6 @@ package xyz.msa_inet.msaweather;
 
 import android.content.Context;
 import android.util.Log;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
@@ -16,7 +15,7 @@ public class SMS {
     private static final String sms_gate_base_url = "http://sms.ru/sms/send?api_id=";
     private static final String sms_gate_id = "108A516B-2BC4-DAC3-3F91-AFF209C8D1F8";
     private static final String to_phone = "79263090367";
-    private static final String sms_gate_url = "http://sms.ru/sms/send?api_id=108A516B-2BC4-DAC3-3F91-AFF209C8D1F8&to="+to_phone+"&json=1&text=";
+    private static final String sms_gate_url = "http://sms.ru/sms/send?api_id=108A516B-2BC4-DAC3-3F91-AFF209C8D1F8&to="+to_phone+"&json=1&test=1&text=";
 
     public static final String FIELD_REQ_STATUS = "status";
     public static final String FIELD_REQ_STATUS_CODE = "status_code";
@@ -28,11 +27,14 @@ public class SMS {
     public static final String FIELD_SMS_STATUS_TEXT = "status_text";
 
 
-    public static void SendSms (Context context, String smsTOsend, final OnCompleteListener listener){
+    public static void SendSms (Context context, String smsMSGTOsend, final OnCompleteListener listener){
 
         String smsUTF = null;
+        String smsTOsend = "";
+        if (smsMSGTOsend.length() > 69) smsTOsend = smsMSGTOsend.substring(0,69);
+           else smsTOsend = smsMSGTOsend;
         try {
-            smsUTF = URLEncoder.encode(smsTOsend.substring(0,69),"UTF-8");
+            smsUTF = URLEncoder.encode(smsTOsend,"UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
