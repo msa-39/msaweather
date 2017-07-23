@@ -64,10 +64,11 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public void sendSms (View v){
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < weatherTXT.length; ++i) {
             try {
                 Log.d("MSA Weather Lenth of SMS is",String.valueOf(weatherTXT[i].length()));
                 SMS.SendSms(this,weatherTXT[i],this);
+
             } catch (Exception e){
                 Log.e("MSA Weather Send SMS from main","EROOR");
                 System.out.println("Exception "+ e.getMessage());

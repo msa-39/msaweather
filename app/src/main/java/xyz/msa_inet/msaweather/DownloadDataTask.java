@@ -21,7 +21,7 @@ public class DownloadDataTask extends AsyncTask<String, Void, String> {
         Log.d("MSA Weather Method = ",metod);
 
         BufferedReader reader = null;
-        HttpURLConnection c;
+        HttpURLConnection c = null;
         if (uri == null || uri.isEmpty()) return null;
 
         try {
@@ -64,6 +64,9 @@ public class DownloadDataTask extends AsyncTask<String, Void, String> {
             Log.e("MSA Weather Exception GET Weather","Exception");
 //            c.disconnect();
             return "";
+        } finally {
+            try {reader.close();} catch(Throwable t) {}
+            try {c.disconnect();} catch(Throwable t) {}
         }
     }
     protected void onPostExecute(String result) {

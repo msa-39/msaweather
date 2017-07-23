@@ -15,7 +15,7 @@ public class SMS {
     private static final String sms_gate_base_url = "http://sms.ru/sms/send?api_id=";
     private static final String sms_gate_id = "108A516B-2BC4-DAC3-3F91-AFF209C8D1F8";
     private static final String to_phone = "79263090367";
-    private static final String sms_gate_url = "http://sms.ru/sms/send?api_id=108A516B-2BC4-DAC3-3F91-AFF209C8D1F8&to="+to_phone+"&json=1&text=";
+    private static final String sms_gate_url = "http://sms.ru/sms/send?api_id=108A516B-2BC4-DAC3-3F91-AFF209C8D1F8&to="+to_phone+"&json=1&test=1&text=";
 
     public static final String FIELD_REQ_STATUS = "status";
     public static final String FIELD_REQ_STATUS_CODE = "status_code";

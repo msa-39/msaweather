@@ -31,5 +31,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Результат отправки СМС тут!"/>
+    <Button
+        android:id="@+id/startTimer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="startTimerTask"
+        android:text="Запустить автоматическую отправку СМС" />
 
 </LinearLayout>
