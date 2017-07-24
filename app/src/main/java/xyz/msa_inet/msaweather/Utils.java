@@ -1,5 +1,6 @@
 package xyz.msa_inet.msaweather;
 
+import android.content.SharedPreferences;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -10,7 +11,7 @@ import java.util.Date;
 public class Utils {
 
     public static ForecastInfo[] WeatherInfo = new ForecastInfo[2];
-//    public static ArrayList<ForecastInfo> WeatherInfo;
+
     public static SmsInfo SmsResultTxt = new SmsInfo();
 
     public static String calcDate(String format, String data) {

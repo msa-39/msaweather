@@ -2,15 +2,44 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-        android:key="weathergate"
-        android:summary="Weather GATE URL"
-        android:title="Адрес URL для weathergate"
+        android:key="owm_city"
+        android:summary="Kaliningrad,ru"
+        android:title="Город для отображения погоды"/>
+
+    <EditTextPreference
+        android:key="owm_base_url"
+        android:summary="http://api.openweathermap.org/data/2.5"
+        android:title="Адрес URL для OpenWeatherMap API"
+        android:inputType="textUri"/>
+
+    <!--EditTextPreference
+        android:key="owm_api_find"
+        android:summary="/find?q=%s&amp;type=like&amp;lang=ru&amp;units=metric"
+        android:title="Адрес URL для OWM поиск города"
         android:inputType="textUri"/>
 
     <EditTextPreference
-        android:key="weather_gate_id"
+        android:key="owm_api_current"
+        android:summary="/weather?units=metric"
+        android:title="Адрес URL для OWP Current Weather"
+        android:inputType="textUri"/>
+
+    <EditTextPreference
+        android:key="owm_api_forecast"
+        android:summary="/forecast?units=metric"
+        android:title="Адрес URL для OWP 5 day / 3 hour forecast"
+        android:inputType="textUri"/-->
+
+    <EditTextPreference
+        android:key="owm_api_daily"
+        android:summary="/forecast/daily?units=metric&amp;cnt=2"
+        android:title="Адрес URL для OWP Daily Forecast"
+        android:inputType="textUri"/>
+
+    <EditTextPreference
+        android:key="owm_api_key"
         android:summary="117d5fa1db04067b40a31da2c1b139ae"
-        android:title="WEATHER API_ID "/>
+        android:title="OPEN WEATHER MAP API_KEY "/>
 
     <EditTextPreference
         android:key="tophone"
@@ -19,13 +48,19 @@
         android:inputType="textPhonetic"/>
 
     <EditTextPreference
+        android:key="sms_gate_url"
+        android:summary="http://sms.ru/sms/send"
+        android:title="Адрес URL для SMS Gate"
+        android:inputType="textUri"/>
+
+    <EditTextPreference
         android:key="sms_gate_id"
         android:summary="108A516B-2BC4-DAC3-3F91-AFF209C8D1F8"
         android:title="SMS API_ID "/>
 
     <CheckBoxPreference
         android:key="testsms"
-        android:summary="Если отмечено, отпрака смС не производится"
+        android:summary="Если отмечено, отпрака СМС не производится"
         android:title="Тест отправки СМС"/>
 
 </PreferenceScreen>

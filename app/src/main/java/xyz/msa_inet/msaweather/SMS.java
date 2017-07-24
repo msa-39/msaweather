@@ -1,6 +1,8 @@
 package xyz.msa_inet.msaweather;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import org.json.JSONObject;
 
@@ -12,11 +14,15 @@ import java.net.URLEncoder;
  */
 
 public class SMS {
-    private static final String sms_gate_base_url = "http://sms.ru/sms/send?api_id=";
-    private static final String sms_gate_id = "108A516B-2BC4-DAC3-3F91-AFF209C8D1F8";
-    private static final String to_phone = "79263090367";
-    private static final String sms_gate_url = "http://sms.ru/sms/send?api_id=108A516B-2BC4-DAC3-3F91-AFF209C8D1F8&to="+to_phone+"&json=1&test=1&text=";
 
+/*
+    private static final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getMyContext());
+
+    private static final String sms_gate_base_url = settings.getString("sms_gate_url","http://sms.ru/sms/send");
+    private static final String sms_gate_id = settings.getString("sms_gate_id","108A516B-2BC4-DAC3-3F91-AFF209C8D1F8");
+    private static final String to_phone = settings.getString("tophone","79263090367");
+    private static final String sms_gate_url = sms_gate_base_url+"?api_id="+sms_gate_id+"&to="+to_phone+"&json=1&test=1&text=";
+*/
     public static final String FIELD_REQ_STATUS = "status";
     public static final String FIELD_REQ_STATUS_CODE = "status_code";
     public static final String FIELD_REQ_STATUS_TEXT = "status_text";
@@ -31,6 +37,15 @@ public class SMS {
 
         String smsUTF = null;
         String smsTOsend = "";
+        String is_test_sms = "&test=1";
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String sms_gate_base_url = settings.getString("sms_gate_url","http://sms.ru/sms/send");
+        String sms_gate_id = settings.getString("sms_gate_id","108A516B-2BC4-DAC3-3F91-AFF209C8D1F8");
+        final String to_phone = settings.getString("tophone","79263090367");
+        if (settings.getBoolean("testsms",true)) is_test_sms = "&test=1"; else is_test_sms = "";
+        String sms_gate_url = sms_gate_base_url+"?api_id="+sms_gate_id+"&to="+to_phone+"&json=1"+is_test_sms+"&text=";
+
         if (smsMSGTOsend.length() > 69) smsTOsend = smsMSGTOsend.substring(0,69);
            else smsTOsend = smsMSGTOsend;
         try {

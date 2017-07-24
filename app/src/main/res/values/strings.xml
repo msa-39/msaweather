@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Погода Калининграда по СМС</string>
+    <string name="app_name">Погода по СМС</string>
     <string name="celsium">°C</string>
     <string name="PERCENT_FORMAT">%s%%</string>
     <string name="CELSIUM_FORMAT">%s°C</string>
