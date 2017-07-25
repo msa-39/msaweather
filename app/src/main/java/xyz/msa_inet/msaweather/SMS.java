@@ -16,8 +16,6 @@ import java.net.URLEncoder;
 public class SMS {
 
 /*
-    private static final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(ApplicationContext.getMyContext());
-
     private static final String sms_gate_base_url = settings.getString("sms_gate_url","http://sms.ru/sms/send");
     private static final String sms_gate_id = settings.getString("sms_gate_id","108A516B-2BC4-DAC3-3F91-AFF209C8D1F8");
     private static final String to_phone = settings.getString("tophone","79263090367");

@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+// import android.support.v4.*;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener{
     /**
@@ -34,8 +35,8 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     Button startTimer;
     Button cancelTimer;
 //    Calendar calendar;
-    String hour;
-    String minutes;
+    String hour = "9";
+    String minutes = "30";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         h_edit.addTextChangedListener(new TextWatcher() {
 
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+                hour = String.valueOf(s);
+            }
 
             public void beforeTextChanged(CharSequence s, int start,
                                           int count, int after) {
@@ -67,13 +70,15 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                                       int before, int count) {
                 TextView h_text = (TextView)findViewById(R.id.hour);
                 h_text.setText(s);
-                hour = String.valueOf(s);
+//                hour = String.valueOf(s);
             }
         });
 
         m_edit.addTextChangedListener(new TextWatcher() {
 
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+                minutes = String.valueOf(s);
+            }
 
             public void beforeTextChanged(CharSequence s, int start,
                                           int count, int after) {
@@ -83,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                                       int before, int count) {
                 TextView m_text = (TextView)findViewById(R.id.minutes);
                 m_text.setText(s);
-                minutes = String.valueOf(s);
+//                minutes = String.valueOf(s);
             }
         });
 
@@ -176,15 +181,15 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         TextView weatherText = (TextView)findViewById(R.id.weatherText);
         if (Utils.WeatherInfo.length > 0 ) {
             for (int i = 0; i < Utils.WeatherInfo.length; ++i) {
-                if (i < 1) weatherTXT[i] = "Сегодня"; else weatherTXT[i] = "Завтра";
-                //weatherTXT += Utils.WeatherInfo[i].date;
+//                if (i < 1) weatherTXT[i] = "Сегодня"; else weatherTXT[i] = "Завтра";
+                weatherTXT[i] = Utils.WeatherInfo[i].date;
                 weatherTXT[i] += " " + Utils.WeatherInfo[i].weather;
                 weatherTXT[i] += "\n" + "Ут "  + Utils.WeatherInfo[i].mon_temp + "°";
                 weatherTXT[i] += "\n" + "Дн "  + Utils.WeatherInfo[i].day_temp + "°";
-                weatherTXT[i] += "\n" + "Веч " + Utils.WeatherInfo[i].evn_temp + "°";
+                weatherTXT[i] += "\n" + "Вч "  + Utils.WeatherInfo[i].evn_temp + "°";
                 weatherTXT[i] += "\n" + "Вет " + Utils.WeatherInfo[i].wind_speed + "м/с " + Utils.WeatherInfo[i].wind;
                 weatherTXT[i] += "\n" + "Дав " + Utils.WeatherInfo[i].pressure;
-                weatherTXT[i] += "\n" + "Вл "  + Utils.WeatherInfo[i].humidity + "%";
+//                weatherTXT[i] += "\n" + "Вл "  + Utils.WeatherInfo[i].humidity + "%";
                 if (i < 1) {
                     weatherTXT[i] += "\n";
                     weatherTXT[i] += "\n";
@@ -248,11 +253,13 @@ class msaTimerTask extends TimerTask {
         Calendar calendar = Calendar.getInstance();
 
         String h = new SimpleDateFormat("k").format(calendar.getTime());
-//        Log.i("MSA Weather HOUR",h);
-        String m = new SimpleDateFormat("m").format(calendar.getTime());
-//        Log.i("MSA Weather MINUTES",m);
+//        Log.i("MSA Weather HOUR",hour);
+
+        String m = new SimpleDateFormat("mm").format(calendar.getTime());
+//        Log.i("MSA Weather MINUTES",minutes);
+
         if (h.equals(hour) & m.equals(minutes)) getWeather(null);
-        if (h.equals(hour) & m.equals(String.valueOf(Integer.parseInt(minutes)+1))) sendSms(null);
+        if (h.equals(hour) & m.equals(String.format("%02d",Integer.parseInt(minutes)+1))) sendSms(null);
     }
 }
 

@@ -5,11 +5,30 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 /**
  * Created by moiseev on 19.07.2017.
  */
 
 public class Weather {
+
+    public static final String FIELD_LIST = "list";
+    public static final String FIELD_TEMP = "temp";
+    public static final String FIELD_WIND = "deg";
+    public static final String FIELD_SPEED = "speed";
+    public static final String FIELD_MORN = "morn";
+    public static final String FIELD_DAY = "day";
+    public static final String FIELD_EVE = "eve";
+    public static final String FIELD_DT = "dt";
+    public static final String FIELD_WEATHER = "weather";
+    public static final String FIELD_PRESSURE = "pressure";
+    public static final String FIELD_HUMIDITY = "humidity";
+    public static final String DATE_FORMAT = "dd/MM";
+    public static final String FIELD_DESCRIPTION = "description";
+    public static final String FIELD_ICON = "icon";
+
 //    private static final String owm_base_url = "http://api.openweathermap.org/data/2.5/";
 //    private static final String owm_app_id = "117d5fa1db04067b40a31da2c1b139ae";
 //    private static final String owm_forecast_url = "http://api.openweathermap.org/data/2.5/forecast?q=Kaliningrad,ru&units=metric&lang=ru&APPID=117d5fa1db04067b40a31da2c1b139ae";
@@ -35,7 +54,7 @@ public class Weather {
             protected void onPostExecute(String result) {
                 if (!result.isEmpty()) {
                     try {
-                        WeatherJsonConverter.toForecast(result);
+                        toForecast(result);
                         Log.d("MSA Weather JsonConverterWeather","DONE");
                         if (listener != null) listener.onCompleteGetWeather();
                     } catch (Exception e) {
@@ -46,5 +65,27 @@ public class Weather {
                 } else if (listener != null) listener.onError();
             }
         }.execute(owm_url,"GET");
+    }
+
+    public static void toForecast(String data) throws Exception {
+
+        JSONArray a = new JSONObject(data).getJSONArray(FIELD_LIST);
+
+        for (int i = 0; i < a.length(); ++i) {
+            ForecastInfo info = new ForecastInfo();
+
+            info.date = Utils.calcDate(DATE_FORMAT, a.getJSONObject(i).getString(FIELD_DT));
+            info.weather  = a.getJSONObject(i).getJSONArray(FIELD_WEATHER).getJSONObject(0).getString(FIELD_DESCRIPTION);
+            info.mon_temp = String.format("%+.0f",a.getJSONObject(i).getJSONObject(FIELD_TEMP).getDouble(FIELD_MORN));
+            info.day_temp = String.format("%+.0f",a.getJSONObject(i).getJSONObject(FIELD_TEMP).getDouble(FIELD_DAY));
+            info.evn_temp = String.format("%+.0f",a.getJSONObject(i).getJSONObject(FIELD_TEMP).getDouble(FIELD_EVE));
+            info.pressure = Utils.calcPressure(a.getJSONObject(i).getString(FIELD_PRESSURE));
+            info.humidity = String.format("%.0f",a.getJSONObject(i).getDouble(FIELD_HUMIDITY));
+            info.wind =  Utils.get_wind_dir(a.getJSONObject(i).getInt(FIELD_WIND));
+            info.wind_speed =  String.format("%.0f",a.getJSONObject(i).getDouble(FIELD_SPEED));
+            info.weather_icon = a.getJSONObject(i).getJSONArray(FIELD_WEATHER).getJSONObject(0).getString(FIELD_ICON);
+
+            Utils.WeatherInfo[i] = info;
+        }
     }
 }

@@ -15,4 +15,5 @@ public class ForecastInfo implements Serializable {
     public String humidity;
     public String wind;
     public String wind_speed;
+    public String weather_icon;
 }
