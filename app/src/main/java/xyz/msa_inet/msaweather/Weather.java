@@ -55,7 +55,8 @@ public class Weather {
                 if (!result.isEmpty()) {
                     try {
                         toForecast(result);
-                        Log.d("MSA Weather JsonConverterWeather","DONE");
+                        Log.i("MSA Weather JsonConverterWeather","DONE");
+
                         if (listener != null) listener.onCompleteGetWeather();
                     } catch (Exception e) {
                         Log.e("MSA Weather Exception","GetWeather Error");

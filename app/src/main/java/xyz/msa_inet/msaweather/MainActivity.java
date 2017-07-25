@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     }
 
     public void getWeather (View v){
+
         Weather.GetWeather(this,this);
     }
 
@@ -204,7 +205,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         for (int i = 0; i < weatherTXT.length; ++i) {
             try {
-                Log.d("MSA Weather Lenth of SMS is",String.valueOf(weatherTXT[i].length()));
                 SMS.SendSms(this,weatherTXT[i],this);
                 Thread.sleep(1000);
 
@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     public void onCompleteSendSms() {
         onProcess = false;
         String smsResText = "";
-        Log.d("MSA Weather onCompleteSendSms","Complete");
+//        Log.d("MSA Weather onCompleteSendSms","Complete");
         TextView smsResult = (TextView)findViewById(R.id.sendSMSres);
 
         if (Utils.SmsResultTxt.req_status.equals("OK")) {
@@ -249,14 +249,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 class msaTimerTask extends TimerTask {
     @Override
     public void run() {
-        // Берем дату и время с системного календаря:
+        // Берем время из системного календаря:
         Calendar calendar = Calendar.getInstance();
-
         String h = new SimpleDateFormat("k").format(calendar.getTime());
-//        Log.i("MSA Weather HOUR",hour);
-
         String m = new SimpleDateFormat("mm").format(calendar.getTime());
-//        Log.i("MSA Weather MINUTES",minutes);
 
         if (h.equals(hour) & m.equals(minutes)) getWeather(null);
         if (h.equals(hour) & m.equals(String.format("%02d",Integer.parseInt(minutes)+1))) sendSms(null);
