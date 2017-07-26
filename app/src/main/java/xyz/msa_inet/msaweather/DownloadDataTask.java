@@ -15,10 +15,10 @@ public class DownloadDataTask extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) { // httpConnection("http://mysite.ru","POST")
         if (params.length < 1) return "";
         String uri = params[0];
-        Log.d("MSA Weather URL = ",uri);
+        Log.i("MSA Weather URL = ",uri);
 
         String metod = params[1]; //GET or POST
-        Log.d("MSA Weather Method = ",metod);
+        Log.i("MSA Weather Method = ",metod);
 
         BufferedReader reader = null;
         HttpURLConnection c = null;

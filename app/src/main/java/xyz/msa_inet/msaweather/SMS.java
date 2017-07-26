@@ -62,9 +62,11 @@ public class SMS {
                         Log.i("MSA Weather JsonConvertSMS","DONE");
 
                         if (listener != null) listener.onCompleteSendSms();
+
                     } catch (Exception e) {
                         Log.e("MSA Weather Exception","SendSms Error");
                         System.out.println("Exception "+ e.getMessage());
+
                         if (listener != null) listener.onError();
                     }
                 } else if (listener != null) listener.onError();

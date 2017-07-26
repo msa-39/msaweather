@@ -58,6 +58,7 @@ public class Weather {
                         Log.i("MSA Weather JsonConverterWeather","DONE");
 
                         if (listener != null) listener.onCompleteGetWeather();
+
                     } catch (Exception e) {
                         Log.e("MSA Weather Exception","GetWeather Error");
                         System.out.println("Exception "+ e.getMessage());

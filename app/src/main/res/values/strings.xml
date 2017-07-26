@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Погода по СМС</string>
+    <string name="ticker_text">Служба отправки погоды по СМС</string>
+    <string name="notification_title">Погода по СМС</string>
+    <string name="notification_message">Запущена служба MSA Weather. Отправка погоды по СМС.</string>
+    <string name="weather_img_url">http://openweathermap.org/img/w/</string>
 </resources>

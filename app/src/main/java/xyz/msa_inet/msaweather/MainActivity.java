@@ -1,7 +1,12 @@
 package xyz.msa_inet.msaweather;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -14,13 +19,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
-// import android.support.v4.*;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener{
     /**
@@ -30,25 +37,27 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public static String[] weatherTXT = new String[2];
 
-    Timer timer;
-    TimerTask timerTask;
-    Button startTimer;
-    Button cancelTimer;
+//    Timer timer;
+//    TimerTask timerTask;
+    Button startMSAService;
+    Button stopMSAService;
 //    Calendar calendar;
     String hour = "9";
     String minutes = "30";
+    int NOTIFY_ID = 666;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startTimer = (Button)findViewById(R.id.startTimer);
-        cancelTimer = (Button)findViewById(R.id.cancelTimer);
-        startTimer.setClickable(true);
-        startTimer.setTextColor(Color.WHITE);
-        cancelTimer.setClickable(false);
-        cancelTimer.setTextColor(Color.GRAY);
+        startMSAService = (Button)findViewById(R.id.startService);
+        stopMSAService = (Button)findViewById(R.id.stopService);
+
+        startMSAService.setClickable(true);
+        startMSAService.setTextColor(Color.WHITE);
+        stopMSAService.setClickable(false);
+        stopMSAService.setTextColor(Color.GRAY);
 
         EditText h_edit = (EditText)findViewById(R.id.hourEdit);
 //        TextView h_text = (TextView)findViewById(R.id.hour);
@@ -117,13 +126,11 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         Button getweatherbtn = (Button) findViewById(R.id.buttonGetWeather);
         Button sendbtn = (Button) findViewById(R.id.buttonSendSms);
-        Button startsendbtn = (Button) findViewById(R.id.startTimer);
-        Button cancelsendbtn = (Button) findViewById(R.id.cancelTimer);
 
         getweatherbtn.setText("Получить погоду " + settings.getString("owm_city", "Kaliningrad,ru"));
         sendbtn.setText("Отправить СМС на " + settings.getString("tophone", "79263090367"));
-        startsendbtn.setText("Запустить автоматическую отправку СМС на " + settings.getString("tophone", "79263090367"));
-        cancelsendbtn.setText("Остановить автоматическую отправку СМС на " + settings.getString("tophone", "79263090367"));
+        startMSAService.setText("Запустить службу автоматической отправкм СМС на " + settings.getString("tophone", "79263090367"));
+        stopMSAService.setText("Остановить службу автоматической отправки СМС на " + settings.getString("tophone", "79263090367"));
     }
 
     @Override
@@ -152,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         return super.onOptionsItemSelected(item);
     }
 
+/*
     public void startTimerTask (View v){
         timer = new Timer();
         timerTask = new msaTimerTask();
@@ -161,7 +169,51 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         cancelTimer.setClickable(true);
         cancelTimer.setTextColor(Color.WHITE);
     }
+*/
+    public void startmsaservice (View v) {
 
+        startMSAService.setClickable(false);
+        startMSAService.setTextColor(Color.GRAY);
+        stopMSAService.setClickable(true);
+        stopMSAService.setTextColor(Color.WHITE);
+
+        Context context = getApplicationContext();
+
+        Intent notificationIntent = new Intent(context, MainActivity.class);
+
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(context,
+                0, notificationIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+
+        Resources res = context.getResources();
+        Notification.Builder builder = new Notification.Builder(context);
+
+        builder.setContentIntent(contentIntent)
+                .setSmallIcon(R.drawable.msaweather_icon)
+                // большая картинка
+                //.setLargeIcon(R.drawable.msaweather_icon)
+                .setTicker(res.getString(R.string.ticker_text)) // текст в строке состояния
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(true)
+                .setContentTitle(res.getString(R.string.notification_title)) // Заголовок уведомления
+                .setContentText(res.getString(R.string.notification_message)); // Текст уведомления
+
+         Notification notification = builder.getNotification(); // до API 16
+//        Notification notification = builder.build();
+
+        NotificationManager notificationManager = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT; // ФЛАГ - Текущее уведомление
+
+        notificationManager.notify(NOTIFY_ID, notification);
+
+        startService(new Intent(this, MSAWeather_service.class).putExtra("hh",hour).putExtra("mm",minutes));
+    }
+/*
     public void cancelTimerTask (View v){
         timer.cancel();
         startTimer.setClickable(true);
@@ -169,7 +221,20 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         cancelTimer.setClickable(false);
         cancelTimer.setTextColor(Color.GRAY);
     }
+*/
+    public void stopmsaservice (View v){
 
+        startMSAService.setClickable(true);
+        startMSAService.setTextColor(Color.WHITE);
+        stopMSAService.setClickable(false);
+        stopMSAService.setTextColor(Color.GRAY);
+
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFY_ID);
+
+        stopService(new Intent(this, MSAWeather_service.class));
+    }
     public void getWeather (View v){
 
         Weather.GetWeather(this,this);
@@ -180,9 +245,15 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         onProcess = false;
         String weatherMSG = "";
         TextView weatherText = (TextView)findViewById(R.id.weatherText);
+
+        String img_url ="";
+
         if (Utils.WeatherInfo.length > 0 ) {
+            ImageView[] img = new ImageView[Utils.WeatherInfo.length];
             for (int i = 0; i < Utils.WeatherInfo.length; ++i) {
-//                if (i < 1) weatherTXT[i] = "Сегодня"; else weatherTXT[i] = "Завтра";
+                if (i < 1) img[i] = (ImageView)findViewById(R.id.im1);
+                    else img[i] = (ImageView)findViewById(R.id.im2);
+
                 weatherTXT[i] = Utils.WeatherInfo[i].date;
                 weatherTXT[i] += " " + Utils.WeatherInfo[i].weather;
                 weatherTXT[i] += "\n" + "Ут "  + Utils.WeatherInfo[i].mon_temp + "°";
@@ -196,8 +267,14 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                     weatherTXT[i] += "\n";
                 }
                 weatherMSG += weatherTXT[i];
+                img_url = getText(R.string.weather_img_url)+Utils.WeatherInfo[i].weather_icon+".png";
+                Log.i("MSA Weather IMG URL",img_url);
+                Glide.with(this)
+                        .load(img_url)
+                        .into(img[i]);
             }
         }
+        Log.d("MSA Weather weather_data",weatherMSG);
         weatherText.setText(weatherMSG);
     }
 
@@ -219,7 +296,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     public void onCompleteSendSms() {
         onProcess = false;
         String smsResText = "";
-//        Log.d("MSA Weather onCompleteSendSms","Complete");
         TextView smsResult = (TextView)findViewById(R.id.sendSMSres);
 
         if (Utils.SmsResultTxt.req_status.equals("OK")) {
@@ -237,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             smsResText += "Текст ошибки: " + Utils.SmsResultTxt.req_status_text +"\n";
         }
 
+        Log.d("MSA Weather SendSMS_result",smsResText);
         smsResult.setText(smsResText);
     }
 
@@ -246,6 +323,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         Log.e("MSA Weather onError","Error");
     }
 
+/*
 class msaTimerTask extends TimerTask {
     @Override
     public void run() {
@@ -258,5 +336,5 @@ class msaTimerTask extends TimerTask {
         if (h.equals(hour) & m.equals(String.format("%02d",Integer.parseInt(minutes)+1))) sendSms(null);
     }
 }
-
+*/
 }

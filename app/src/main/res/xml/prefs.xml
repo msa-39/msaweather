@@ -45,7 +45,7 @@
         android:key="tophone"
         android:summary="79263090367"
         android:title="Номер телефона для СМС"
-        android:inputType="textPhonetic"/>
+        android:inputType="phone"/>
 
     <EditTextPreference
         android:key="sms_gate_url"
@@ -62,5 +62,10 @@
         android:key="testsms"
         android:summary="Если отмечено, отпрака СМС не производится"
         android:title="Тест отправки СМС"/>
+
+    <CheckBoxPreference
+        android:key="enable_log"
+        android:summary="Если отмечено, пишется лог-файл"
+        android:title="Писать лог-фалй"/>
 
 </PreferenceScreen>
