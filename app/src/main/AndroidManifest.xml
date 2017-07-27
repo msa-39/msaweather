@@ -11,7 +11,9 @@
         android:roundIcon="@drawable/msaweather_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service android:name=".MSAWeather_service" />
+
+        <service android:name=".MSAWeather_service"/>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

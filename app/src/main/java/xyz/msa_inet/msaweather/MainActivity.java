@@ -1,33 +1,22 @@
 package xyz.msa_inet.msaweather;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener{
     /**
@@ -37,38 +26,120 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public static String[] weatherTXT = new String[2];
 
-//    Timer timer;
-//    TimerTask timerTask;
-    Button startMSAService;
-    Button stopMSAService;
+    Button startMSAServiceBTN;
+    Button stopMSAServiceBTN;
 //    Calendar calendar;
     String hour = "9";
     String minutes = "30";
-    int NOTIFY_ID = 666;
+//    int NOTIFY_ID = 666;
+
+    TextView h_text; //= (TextView)findViewById(R.id.hour);
+    TextView m_text; //= (TextView)findViewById(R.id.minutes);
+
+   private void set_BTN(){
+
+       Log.d("MSA Weather Service_RUN",String.valueOf(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("IS_SERVICE_RUN", false)));
+
+       h_text.setText(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("HH", "9"));
+       m_text.setText(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("MM", "30"));
+
+       if (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("IS_SERVICE_RUN", false)) {
+
+           startMSAServiceBTN.setClickable(false);
+           startMSAServiceBTN.setTextColor(Color.GRAY);
+           stopMSAServiceBTN.setClickable(true);
+           stopMSAServiceBTN.setTextColor(Color.WHITE);
+       } else {
+           startMSAServiceBTN.setClickable(true);
+           startMSAServiceBTN.setTextColor(Color.WHITE);
+           stopMSAServiceBTN.setClickable(false);
+           stopMSAServiceBTN.setTextColor(Color.GRAY);
+       }
+   }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startMSAService = (Button)findViewById(R.id.startService);
-        stopMSAService = (Button)findViewById(R.id.stopService);
+        startMSAServiceBTN = (Button)findViewById(R.id.startService);
+        stopMSAServiceBTN = (Button)findViewById(R.id.stopService);
 
-        startMSAService.setClickable(true);
-        startMSAService.setTextColor(Color.WHITE);
-        stopMSAService.setClickable(false);
-        stopMSAService.setTextColor(Color.GRAY);
+        String[] hours = {"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23"};
+        final String[] mins = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23",
+                "24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47",
+                "48","49","50","51","52","53","54","55","56","57","58"};
+        h_text = (TextView)findViewById(R.id.hour);
+        m_text = (TextView)findViewById(R.id.minutes);
 
+        set_BTN();
+
+        Spinner h_edit = (Spinner) findViewById(R.id.hourEdit);
+        // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
+        ArrayAdapter<String> adapterH = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, hours);
+        // Определяем разметку для использования при выборе элемента
+        adapterH.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Применяем адаптер к элементу spinner
+        h_edit.setAdapter(adapterH);
+
+        int spinnerPositionH =adapterH.getPosition(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("HH", "9"));
+        h_edit.setSelection(spinnerPositionH);
+
+        AdapterView.OnItemSelectedListener itemSelectedListenerH = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                // Получаем выбранный объект
+                String item = (String)parent.getItemAtPosition(position);
+                hour = String.valueOf(item);
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("HH", hour).commit();
+                h_text.setText(hour);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        };
+        h_edit.setOnItemSelectedListener(itemSelectedListenerH);
+
+        Spinner m_edit = (Spinner)findViewById(R.id.minutesEdit);
+        // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
+        ArrayAdapter<String> adapterM = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mins);
+        // Определяем разметку для использования при выборе элемента
+        adapterM.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Применяем адаптер к элементу spinner
+        m_edit.setAdapter(adapterM);
+
+        int spinnerPositionM = adapterM.getPosition(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("MM", "30"));
+        m_edit.setSelection(spinnerPositionM);
+
+        AdapterView.OnItemSelectedListener itemSelectedListenerM = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                // Получаем выбранный объект
+                String item = (String)parent.getItemAtPosition(position);
+                minutes = String.valueOf(item);
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("MM", minutes).commit();
+                m_text.setText(minutes);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        };
+        m_edit.setOnItemSelectedListener(itemSelectedListenerM);
+/*
         EditText h_edit = (EditText)findViewById(R.id.hourEdit);
-//        TextView h_text = (TextView)findViewById(R.id.hour);
-
         EditText m_edit = (EditText)findViewById(R.id.minutesEdit);
-//        TextView m_text = (TextView)findViewById(R.id.minutes);
 
         h_edit.addTextChangedListener(new TextWatcher() {
 
             public void afterTextChanged(Editable s) {
                 hour = String.valueOf(s);
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("HH", hour).commit();
             }
 
             public void beforeTextChanged(CharSequence s, int start,
@@ -77,9 +148,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                TextView h_text = (TextView)findViewById(R.id.hour);
                 h_text.setText(s);
-//                hour = String.valueOf(s);
             }
         });
 
@@ -87,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
             public void afterTextChanged(Editable s) {
                 minutes = String.valueOf(s);
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("MM", minutes).commit();
             }
 
             public void beforeTextChanged(CharSequence s, int start,
@@ -95,12 +165,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
-                TextView m_text = (TextView)findViewById(R.id.minutes);
                 m_text.setText(s);
-//                minutes = String.valueOf(s);
             }
         });
-
+*/
     }
 
  /*   // отображаем диалоговое окно для выбора времени
@@ -129,8 +197,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         getweatherbtn.setText("Получить погоду " + settings.getString("owm_city", "Kaliningrad,ru"));
         sendbtn.setText("Отправить СМС на " + settings.getString("tophone", "79263090367"));
-        startMSAService.setText("Запустить службу автоматической отправкм СМС на " + settings.getString("tophone", "79263090367"));
-        stopMSAService.setText("Остановить службу автоматической отправки СМС на " + settings.getString("tophone", "79263090367"));
+        startMSAServiceBTN.setText("Запустить службу автоматической отправкм СМС на " + settings.getString("tophone", "79263090367"));
+        stopMSAServiceBTN.setText("Остановить службу автоматической отправки СМС на " + settings.getString("tophone", "79263090367"));
+
+        set_BTN();
     }
 
     @Override
@@ -159,79 +229,22 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         return super.onOptionsItemSelected(item);
     }
 
-/*
-    public void startTimerTask (View v){
-        timer = new Timer();
-        timerTask = new msaTimerTask();
-        timer.schedule(timerTask,0,60000);
-        startTimer.setClickable(false);
-        startTimer.setTextColor(Color.GRAY);
-        cancelTimer.setClickable(true);
-        cancelTimer.setTextColor(Color.WHITE);
-    }
-*/
     public void startmsaservice (View v) {
 
-        startMSAService.setClickable(false);
-        startMSAService.setTextColor(Color.GRAY);
-        stopMSAService.setClickable(true);
-        stopMSAService.setTextColor(Color.WHITE);
-
-        Context context = getApplicationContext();
-
-        Intent notificationIntent = new Intent(context, MainActivity.class);
-
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-        PendingIntent contentIntent = PendingIntent.getActivity(context,
-                0, notificationIntent,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-
-        Resources res = context.getResources();
-        Notification.Builder builder = new Notification.Builder(context);
-
-        builder.setContentIntent(contentIntent)
-                .setSmallIcon(R.drawable.msaweather_icon)
-                // большая картинка
-                //.setLargeIcon(R.drawable.msaweather_icon)
-                .setTicker(res.getString(R.string.ticker_text)) // текст в строке состояния
-                .setWhen(System.currentTimeMillis())
-                .setAutoCancel(true)
-                .setContentTitle(res.getString(R.string.notification_title)) // Заголовок уведомления
-                .setContentText(res.getString(R.string.notification_message)); // Текст уведомления
-
-         Notification notification = builder.getNotification(); // до API 16
-//        Notification notification = builder.build();
-
-        NotificationManager notificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-
-        notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT; // ФЛАГ - Текущее уведомление
-
-        notificationManager.notify(NOTIFY_ID, notification);
+        startMSAServiceBTN.setClickable(false);
+        startMSAServiceBTN.setTextColor(Color.GRAY);
+        stopMSAServiceBTN.setClickable(true);
+        stopMSAServiceBTN.setTextColor(Color.WHITE);
 
         startService(new Intent(this, MSAWeather_service.class).putExtra("hh",hour).putExtra("mm",minutes));
     }
-/*
-    public void cancelTimerTask (View v){
-        timer.cancel();
-        startTimer.setClickable(true);
-        startTimer.setTextColor(Color.WHITE);
-        cancelTimer.setClickable(false);
-        cancelTimer.setTextColor(Color.GRAY);
-    }
-*/
+
     public void stopmsaservice (View v){
 
-        startMSAService.setClickable(true);
-        startMSAService.setTextColor(Color.WHITE);
-        stopMSAService.setClickable(false);
-        stopMSAService.setTextColor(Color.GRAY);
-
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext()
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFY_ID);
+        startMSAServiceBTN.setClickable(true);
+        startMSAServiceBTN.setTextColor(Color.WHITE);
+        stopMSAServiceBTN.setClickable(false);
+        stopMSAServiceBTN.setTextColor(Color.GRAY);
 
         stopService(new Intent(this, MSAWeather_service.class));
     }
@@ -323,18 +336,4 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         Log.e("MSA Weather onError","Error");
     }
 
-/*
-class msaTimerTask extends TimerTask {
-    @Override
-    public void run() {
-        // Берем время из системного календаря:
-        Calendar calendar = Calendar.getInstance();
-        String h = new SimpleDateFormat("k").format(calendar.getTime());
-        String m = new SimpleDateFormat("mm").format(calendar.getTime());
-
-        if (h.equals(hour) & m.equals(minutes)) getWeather(null);
-        if (h.equals(hour) & m.equals(String.format("%02d",Integer.parseInt(minutes)+1))) sendSms(null);
-    }
-}
-*/
 }

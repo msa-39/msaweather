@@ -97,18 +97,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <EditText
+        <Spinner
             android:id="@+id/hourEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="number"/>
-        <EditText
+            android:layout_weight="1"/>
+        <Spinner
             android:id="@+id/minutesEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="number"/>
+            android:layout_weight="1"/>
 
     </LinearLayout>
 

@@ -1,6 +1,5 @@
 package xyz.msa_inet.msaweather;
 
-import android.content.SharedPreferences;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
