@@ -1,5 +1,11 @@
 package xyz.msa_inet.msaweather;
 
+import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -44,5 +50,48 @@ public class Utils {
         double mbar = Double.valueOf(data);
         int mmrs = (int) Math.round((mbar / 1.3332));
         return String.valueOf(mmrs);// + " мм р.с.";
+    }
+
+    public static String MSAhttp (String url_str, String metod_str){
+
+        if (url_str.length()<1) return "";
+
+        String uri = url_str;
+        Log.i("MSA Weather URL = ",uri);
+
+        String metod = metod_str; //GET or POST
+        Log.i("MSA Weather Method = ",metod);
+
+        BufferedReader reader = null;
+        HttpURLConnection c = null;
+        if (uri == null || uri.isEmpty()) return null;
+
+        try {
+            URL url = new URL(uri);
+            c = (HttpURLConnection) url.openConnection();
+            c.setRequestMethod(metod);
+            c.setReadTimeout(10000);
+            c.connect();
+            reader = new BufferedReader(new InputStreamReader(c.getInputStream()));
+            StringBuilder buf = new StringBuilder();
+            String line = null;
+
+            while ((line = reader.readLine()) != null) {
+                buf.append(line + "\n");
+                Log.d("MSA Weather Buf Line",line);
+            }
+            reader.close();
+            c.disconnect();
+
+            return(buf.toString());
+
+        }catch(Exception e){
+            Log.e("MSA Weather Exception GET Weather","Exception");
+            return "";
+        } finally {
+            try {reader.close();} catch(Throwable t) {}
+            try {c.disconnect();} catch(Throwable t) {}
+        }
+
     }
 }
