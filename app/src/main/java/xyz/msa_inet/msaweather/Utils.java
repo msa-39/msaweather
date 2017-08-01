@@ -52,15 +52,17 @@ public class Utils {
         return String.valueOf(mmrs);// + " мм р.с.";
     }
 
-    public static String MSAhttp (String url_str, String metod_str){
+    public static String MSAhttp (String url_str, String metod_str, Boolean isLogWr){
 
         if (url_str.length()<1) return "";
 
         String uri = url_str;
         Log.i("MSA Weather URL = ",uri);
+        MSALog.wrLog("MSA Weather URL = "+uri,isLogWr);
 
         String metod = metod_str; //GET or POST
         Log.i("MSA Weather Method = ",metod);
+        MSALog.wrLog("MSA Weather Method = "+metod, isLogWr);
 
         BufferedReader reader = null;
         HttpURLConnection c = null;
@@ -79,6 +81,7 @@ public class Utils {
             while ((line = reader.readLine()) != null) {
                 buf.append(line + "\n");
                 Log.d("MSA Weather Buf Line",line);
+                MSALog.wrLog("MSA Weather Buf Line"+line, isLogWr);
             }
             reader.close();
             c.disconnect();
@@ -87,6 +90,7 @@ public class Utils {
 
         }catch(Exception e){
             Log.e("MSA Weather Exception GET Weather","Exception");
+            MSALog.wrLog("MSA Weather Exception GET Weather"+e.getMessage(),isLogWr);
             return "";
         } finally {
             try {reader.close();} catch(Throwable t) {}

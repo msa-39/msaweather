@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 /**
  * Created by moiseev on 26.07.2017.
  */
@@ -26,9 +27,9 @@ public class MSAWeather_service extends Service {
     private int NOTIFY_ID = 666;
     private NotificationManager mNM;
 
-    int mStartMode = START_STICKY;       // indicates how to behave if the service is killed
-    IBinder mBinder = null;      // interface for clients that bind
-    boolean mAllowRebind; // indicates whether onRebind should be used
+    int mStartMode = START_STICKY; // indicates how to behave if the service is killed
+    IBinder mBinder = null;       // interface for clients that bind
+    boolean mAllowRebind;        // indicates whether onRebind should be used
 
     final String LOG_TAG = "MSA Weather Service LOG";
     Timer timer;
@@ -39,16 +40,27 @@ public class MSAWeather_service extends Service {
     public static String[] weatherTXT = new String[2];
     public static String smsMessage = "";
 
+    public Boolean isLogEnable;// = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("enable_log", false);
+
     @Override
     public void onCreate() {
+
         // The service is being created
         super.onCreate();
         Log.d(LOG_TAG, "onCreate");
-        PreferenceManager.getDefaultSharedPreferences(super.getApplicationContext()).edit().putBoolean("IS_SERVICE_RUN", true).commit();
+
+        isLogEnable = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("enable_log", false);
+
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("IS_SERVICE_RUN", true).commit();
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // Display a notification about us starting.  We put an icon in the status bar.
         showNotification();
+
+        // Запускаем логирование
+        MSALog.OpenLogFile(isLogEnable);
+        MSALog.wrLog(LOG_TAG+" onCreate",isLogEnable);
+
     }
 
     @Override
@@ -56,9 +68,11 @@ public class MSAWeather_service extends Service {
         // The service is starting, due to a call to startService()
 
         Log.i(LOG_TAG, "onStartCommand");
+        MSALog.wrLog(LOG_TAG+" onStartCommand",isLogEnable);
         hour = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("HH", "9");
         minutes = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("MM", "30");
         Log.d(LOG_TAG, "hour = " + hour + " minutes = " + minutes);
+        MSALog.wrLog(LOG_TAG+" hour = " + hour + " minutes = " + minutes, isLogEnable);
 
         timer = new Timer();
         timerTask = new msaTimerTask();
@@ -72,6 +86,7 @@ public class MSAWeather_service extends Service {
     public IBinder onBind(Intent intent) {
         // A client is binding to the service with bindService()
         Log.i(LOG_TAG, "onBind");
+        MSALog.wrLog(LOG_TAG+" onBind",isLogEnable);
         return mBinder;
     }
 
@@ -79,6 +94,7 @@ public class MSAWeather_service extends Service {
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
         Log.i(LOG_TAG, "onUnbind");
+        MSALog.wrLog(LOG_TAG+" onUnbind",isLogEnable);
         return mAllowRebind;
     }
 
@@ -87,6 +103,7 @@ public class MSAWeather_service extends Service {
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
         Log.d(LOG_TAG, "onRebind");
+        MSALog.wrLog(LOG_TAG+" onRebind",isLogEnable);
     }
 
     @Override
@@ -95,16 +112,20 @@ public class MSAWeather_service extends Service {
         timer.cancel();
         super.onDestroy();
         Log.i(LOG_TAG, "onDestroy");
+        MSALog.wrLog(LOG_TAG+" onDestroy",isLogEnable);
 
-        PreferenceManager.getDefaultSharedPreferences(super.getApplicationContext()).edit().putBoolean("IS_SERVICE_RUN", false).commit();
+        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("IS_SERVICE_RUN", false).commit();
 
 //        stopForeground(NOTIFY_ID);
         mNM.cancel(NOTIFY_ID);
+
+        MSALog.CloseLogFile(isLogEnable);
+
     }
 
     void getWeatherTask() {
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(super.getApplicationContext());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String owm_city = settings.getString("owm_city", "Kaliningrad,ru");
         String owm_base_url = settings.getString("owm_base_url", "http://api.openweathermap.org/data/2.5/");
         String owm_app_id = settings.getString("owm_api_key", "117d5fa1db04067b40a31da2c1b139ae");
@@ -112,19 +133,22 @@ public class MSAWeather_service extends Service {
 
         String owm_url = owm_base_url + owm_api_daily + "&q=" + owm_city + "&APPID=" + owm_app_id;
 
-        String result = Utils.MSAhttp(owm_url, "GET");
+        String result = Utils.MSAhttp(owm_url, "GET", isLogEnable);
 
         if (!result.isEmpty()) {
             try {
                 Weather.toForecast(result);
                 Log.i("MSA Weather JsonConverterWeather from SERVICE", "DONE");
+                MSALog.wrLog("MSA Weather JsonConverterWeather from SERVICE - DONE",isLogEnable);
 
             } catch (Exception e) {
                 Log.e("MSA Weather Exception from SERVICE", "GetWeather Error");
                 System.out.println("Exception " + e.getMessage());
+                MSALog.wrLog("Exception GetWeather" + e.getMessage(),isLogEnable);
             }
 
             if (Utils.WeatherInfo.length > 0) {
+                smsMessage = "";
                 for (int i = 0; i < Utils.WeatherInfo.length; ++i) {
                     weatherTXT[i] = Utils.WeatherInfo[i].date;
                     weatherTXT[i] += " " + Utils.WeatherInfo[i].weather;
@@ -140,44 +164,9 @@ public class MSAWeather_service extends Service {
                     smsMessage += weatherTXT[i];
                 }
                 Log.d("MSA Weather weather_data from SERVICE", smsMessage);
+                MSALog.wrLog("MSA Weather weather_data from SERVICE"+"\n"+smsMessage,isLogEnable);
             }
         }
-
-/*
-        new DownloadDataTask() {
-            @Override
-            protected void onPostExecute(String result) {
-                if (!result.isEmpty()) {
-                    try {
-                        Weather.toForecast(result);
-                        Log.i("MSA Weather JsonConverterWeather from SERVICE", "DONE");
-
-                    } catch (Exception e) {
-                        Log.e("MSA Weather Exception from SERVICE", "GetWeather Error");
-                        System.out.println("Exception " + e.getMessage());
-                    }
-
-                    if (Utils.WeatherInfo.length > 0) {
-                        for (int i = 0; i < Utils.WeatherInfo.length; ++i) {
-                            weatherTXT[i] = Utils.WeatherInfo[i].date;
-                            weatherTXT[i] += " " + Utils.WeatherInfo[i].weather;
-                            weatherTXT[i] += "\n" + "Ут " + Utils.WeatherInfo[i].mon_temp + "°";
-                            weatherTXT[i] += "\n" + "Дн " + Utils.WeatherInfo[i].day_temp + "°";
-                            weatherTXT[i] += "\n" + "Вч " + Utils.WeatherInfo[i].evn_temp + "°";
-                            weatherTXT[i] += "\n" + "Вет " + Utils.WeatherInfo[i].wind_speed + "м/с " + Utils.WeatherInfo[i].wind;
-                            weatherTXT[i] += "\n" + "Дав " + Utils.WeatherInfo[i].pressure;
-                            if (i < 1) {
-                                weatherTXT[i] += "\n";
-                                weatherTXT[i] += "\n";
-                            }
-                            smsMessage += weatherTXT[i];
-                        }
-                        Log.d("MSA Weather weather_data from SERVICE", smsMessage);
-                    }
-                }
-            }
-        }.execute(owm_url, "GET");
-*/
     }
 
     void sendSmsTask(String[] cMessage) {
@@ -185,7 +174,7 @@ public class MSAWeather_service extends Service {
         String smsTOsend = "";
         String is_test_sms = "&test=1";
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(super.getApplicationContext());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         String sms_gate_base_url = settings.getString("sms_gate_url", "http://sms.ru/sms/send");
         String sms_gate_id = settings.getString("sms_gate_id", "108A516B-2BC4-DAC3-3F91-AFF209C8D1F8");
@@ -205,17 +194,19 @@ public class MSAWeather_service extends Service {
             }
             String sms_url = sms_gate_url + smsUTF;
 
-            String result = Utils.MSAhttp(sms_url, "GET");
+            String result = Utils.MSAhttp(sms_url, "GET", isLogEnable);
 
                 if (!result.isEmpty()) {
                     try {
 
                         SMS.toSmsInfo(result, to_phone);
                         Log.i("MSA Weather JsonConvertSMS from SERVICE", "DONE");
+                        MSALog.wrLog("MSA Weather JsonConvertSMS from SERVICE - DONE",isLogEnable);
 
                     } catch (Exception e) {
                         Log.e("MSA Weather Exception from SERVICE", "SendSms Error");
                         System.out.println("Exception " + e.getMessage());
+                        MSALog.wrLog("MSA Weather Exception from SERVICE"+ e.getMessage(), isLogEnable);
 
                     }
                     String smsResText = "";
@@ -236,64 +227,42 @@ public class MSAWeather_service extends Service {
                     }
 
                     Log.d("MSA Weather SendSMS_result", smsResText);
+                    MSALog.wrLog("MSA Weather SendSMS_result"+"\n"+smsResText,isLogEnable);
 
-                } else
+                } else {
                     Log.e("MSA Weather from SERVICE", "Не получен ответ от сервиса отправки СМС.");
-
-/*
-            new DownloadDataTask() {
-                @Override
-                protected void onPostExecute(String result) {
-                    if (!result.isEmpty()) {
-                        try {
-
-                            SMS.toSmsInfo(result, to_phone);
-                            Log.i("MSA Weather JsonConvertSMS from SERVICE", "DONE");
-
-                        } catch (Exception e) {
-                            Log.e("MSA Weather Exception from SERVICE", "SendSms Error");
-                            System.out.println("Exception " + e.getMessage());
-
-                        }
-                        String smsResText = "";
-
-                        if (Utils.SmsResultTxt.req_status.equals("OK")) {
-                            if (Utils.SmsResultTxt.sms_status.equals("OK")) {
-                                smsResText += "СМС успешно отправлено." + "\n";
-                                smsResText += "ID сообщения - " + Utils.SmsResultTxt.sms_id + "\n";
-                            } else {
-                                smsResText += "СМС НЕ отправлено!" + "\n";
-                                smsResText += "Код ошибки: " + Utils.SmsResultTxt.sms_status_code + "\n";
-                                smsResText += "Текст ошибки: " + Utils.SmsResultTxt.sms_status_text + "\n";
-                            }
-                        } else {
-                            smsResText += "Запрос на отправку СМС НЕ выполнился!" + "\n";
-                            smsResText += "Код ошибки: " + Utils.SmsResultTxt.req_status_code + "\n";
-                            smsResText += "Текст ошибки: " + Utils.SmsResultTxt.req_status_text + "\n";
-                        }
-
-                        Log.d("MSA Weather SendSMS_result", smsResText);
-
-                    } else
-                        Log.e("MSA Weather from SERVICE", "Не получен ответ от сервиса отправки СМС.");
+                    MSALog.wrLog("MSA Weather from SERVICE! Не получен ответ от сервиса отправки СМС.",isLogEnable);
                 }
-            }.execute(sms_url, "GET");
-*/
+
+            try {
+                MSALog.wrLog(LOG_TAG+" PAUSE 950 msec.",isLogEnable);
+                Thread.sleep(950);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                MSALog.wrLog(LOG_TAG+" Exeption PAUSE 950 msec. "+e.getMessage(),isLogEnable);
+            }
         }
     }
 
     class msaTimerTask extends TimerTask {
         @Override
         public void run() {
+
+            MSALog.wrLog(LOG_TAG+" RUN Timer BEGIN.",isLogEnable);
             // Берем время из системного календаря:
             Calendar calendar = Calendar.getInstance();
             String h = new SimpleDateFormat("k").format(calendar.getTime());
             String m = new SimpleDateFormat("mm").format(calendar.getTime());
 
-            if (h.equals(hour) & m.equals(minutes)) getWeatherTask();
-            if (h.equals(hour) & m.equals(String.format("%02d", Integer.parseInt(minutes) + 1)))
-                sendSmsTask(weatherTXT);
+            getWeatherTask();
+            if (h.equals(hour) & m.equals(minutes)) sendSmsTask(weatherTXT);
+
+//            if (h.equals(hour) & m.equals(minutes)) getWeatherTask();
+//            if (h.equals(hour) & m.equals(String.format("%02d", Integer.parseInt(minutes) + 1)))
+//                sendSmsTask(weatherTXT);
+            MSALog.wrLog(LOG_TAG+" RUN Timer END.",isLogEnable);
         }
+
     }
 
     /**
