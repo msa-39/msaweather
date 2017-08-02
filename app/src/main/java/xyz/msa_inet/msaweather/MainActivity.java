@@ -1,9 +1,15 @@
 package xyz.msa_inet.msaweather;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +22,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener{
@@ -28,13 +36,14 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     Button startMSAServiceBTN;
     Button stopMSAServiceBTN;
-//    Calendar calendar;
     String hour = "9";
     String minutes = "30";
-//    int NOTIFY_ID = 666;
 
     TextView h_text; //= (TextView)findViewById(R.id.hour);
     TextView m_text; //= (TextView)findViewById(R.id.minutes);
+
+    private static final int REQUEST_PERMISSION_WRITE = 1001;
+    private boolean permissionGranted;
 
    private void set_BTN(){
 
@@ -132,63 +141,49 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             }
         };
         m_edit.setOnItemSelectedListener(itemSelectedListenerM);
-/*
-        EditText h_edit = (EditText)findViewById(R.id.hourEdit);
-        EditText m_edit = (EditText)findViewById(R.id.minutesEdit);
-
-        h_edit.addTextChangedListener(new TextWatcher() {
-
-            public void afterTextChanged(Editable s) {
-                hour = String.valueOf(s);
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("HH", hour).commit();
-            }
-
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                h_text.setText(s);
-            }
-        });
-
-        m_edit.addTextChangedListener(new TextWatcher() {
-
-            public void afterTextChanged(Editable s) {
-                minutes = String.valueOf(s);
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("MM", minutes).commit();
-            }
-
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
-            }
-
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
-                m_text.setText(s);
-            }
-        });
-*/
     }
 
- /*   // отображаем диалоговое окно для выбора времени
-    public void setTime(View v) {
-        new TimePickerDialog(MainActivity.this, t,
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE), true)
-                .show();
+ // проверяем, доступно ли внешнее хранилище для чтения и записи
+ public boolean isExternalStorageWriteable(){
+     String state = Environment.getExternalStorageState();
+     return  Environment.MEDIA_MOUNTED.equals(state);
+ }
+    // проверяем, доступно ли внешнее хранилище хотя бы только для чтения
+    public boolean isExternalStorageReadable(){
+        String state = Environment.getExternalStorageState();
+        return  (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
     }
 
-    // установка обработчика выбора времени
-    TimePickerDialog.OnTimeSetListener t=new TimePickerDialog.OnTimeSetListener() {
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            dateAndTime.set(Calendar.MINUTE, minute);
-            setInitialDateTime();
+    // Проверка разрешений
+    private boolean checkPermissions(){
+
+        if(!isExternalStorageReadable() || !isExternalStorageWriteable()){
+            Toast.makeText(this, "Внешнее хранилище не доступно", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck!= PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_WRITE);
+            return false;
+        }
+        return true;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        switch (requestCode){
+            case REQUEST_PERMISSION_WRITE:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    permissionGranted = true;
+                    Toast.makeText(this, "Разрешения получены", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Toast.makeText(this, "Необходимо дать разрешения", Toast.LENGTH_LONG).show();
+                }
+                break;
         }
     }
-*/
+
     @Override
     public void onResume() {
         super.onResume();
@@ -202,6 +197,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         stopMSAServiceBTN.setText("Остановить службу автоматической отправки СМС на " + settings.getString("tophone", "79263090367"));
 
         set_BTN();
+
+        if(settings.getBoolean("enable_log", false) && !permissionGranted)
+            checkPermissions();
+
     }
 
     @Override
@@ -297,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         for (int i = 0; i < weatherTXT.length; ++i) {
             try {
                 SMS.SendSms(this,weatherTXT[i],this);
-                Thread.sleep(950);
+                Thread.sleep(3000);
 
             } catch (Exception e){
                 Log.e("MSA Weather Send SMS from main","EROOR");

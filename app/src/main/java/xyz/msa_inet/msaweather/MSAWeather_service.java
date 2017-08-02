@@ -42,16 +42,19 @@ public class MSAWeather_service extends Service {
 
     public Boolean isLogEnable;// = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("enable_log", false);
 
+    private SharedPreferences settings;// = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
     @Override
     public void onCreate() {
 
         // The service is being created
         super.onCreate();
         Log.d(LOG_TAG, "onCreate");
+        settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        isLogEnable = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("enable_log", false);
+        isLogEnable = settings.getBoolean("enable_log", false); //PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("enable_log", false);
 
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("IS_SERVICE_RUN", true).commit();
+        settings.edit().putBoolean("IS_SERVICE_RUN", true).commit();//PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("IS_SERVICE_RUN", true).commit();
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // Display a notification about us starting.  We put an icon in the status bar.
@@ -69,8 +72,8 @@ public class MSAWeather_service extends Service {
 
         Log.i(LOG_TAG, "onStartCommand");
         MSALog.wrLog(LOG_TAG+" onStartCommand",isLogEnable);
-        hour = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("HH", "9");
-        minutes = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("MM", "30");
+        hour = settings.getString("HH", "9");
+        minutes = settings.getString("MM", "30");
         Log.d(LOG_TAG, "hour = " + hour + " minutes = " + minutes);
         MSALog.wrLog(LOG_TAG+" hour = " + hour + " minutes = " + minutes, isLogEnable);
 
@@ -114,7 +117,7 @@ public class MSAWeather_service extends Service {
         Log.i(LOG_TAG, "onDestroy");
         MSALog.wrLog(LOG_TAG+" onDestroy",isLogEnable);
 
-        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("IS_SERVICE_RUN", false).commit();
+        settings.edit().putBoolean("IS_SERVICE_RUN", false).commit();
 
 //        stopForeground(NOTIFY_ID);
         mNM.cancel(NOTIFY_ID);
@@ -125,7 +128,8 @@ public class MSAWeather_service extends Service {
 
     void getWeatherTask() {
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
         String owm_city = settings.getString("owm_city", "Kaliningrad,ru");
         String owm_base_url = settings.getString("owm_base_url", "http://api.openweathermap.org/data/2.5/");
         String owm_app_id = settings.getString("owm_api_key", "117d5fa1db04067b40a31da2c1b139ae");
@@ -174,7 +178,7 @@ public class MSAWeather_service extends Service {
         String smsTOsend = "";
         String is_test_sms = "&test=1";
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         String sms_gate_base_url = settings.getString("sms_gate_url", "http://sms.ru/sms/send");
         String sms_gate_id = settings.getString("sms_gate_id", "108A516B-2BC4-DAC3-3F91-AFF209C8D1F8");
@@ -235,11 +239,11 @@ public class MSAWeather_service extends Service {
                 }
 
             try {
-                MSALog.wrLog(LOG_TAG+" PAUSE 950 msec.",isLogEnable);
-                Thread.sleep(950);
+                MSALog.wrLog(LOG_TAG+" PAUSE 3 sec.",isLogEnable);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                MSALog.wrLog(LOG_TAG+" Exeption PAUSE 950 msec. "+e.getMessage(),isLogEnable);
+                MSALog.wrLog(LOG_TAG+" Exeption PAUSE 3 sec. "+e.getMessage(),isLogEnable);
             }
         }
     }
@@ -255,14 +259,14 @@ public class MSAWeather_service extends Service {
             String m = new SimpleDateFormat("mm").format(calendar.getTime());
 
             getWeatherTask();
-            if (h.equals(hour) & m.equals(minutes)) sendSmsTask(weatherTXT);
+            if (h.equals(hour) && m.equals(minutes)) sendSmsTask(weatherTXT);
 
 //            if (h.equals(hour) & m.equals(minutes)) getWeatherTask();
 //            if (h.equals(hour) & m.equals(String.format("%02d", Integer.parseInt(minutes) + 1)))
 //                sendSmsTask(weatherTXT);
+
             MSALog.wrLog(LOG_TAG+" RUN Timer END.",isLogEnable);
         }
-
     }
 
     /**
