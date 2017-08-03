@@ -12,8 +12,11 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -60,6 +63,8 @@ public class MSAWeather_service extends Service {
         // Display a notification about us starting.  We put an icon in the status bar.
         showNotification();
 
+//        if(timer != null) timer.cancel();
+
         // Запускаем логирование
         MSALog.OpenLogFile(isLogEnable);
         MSALog.wrLog(LOG_TAG+" onCreate",isLogEnable);
@@ -72,14 +77,52 @@ public class MSAWeather_service extends Service {
 
         Log.i(LOG_TAG, "onStartCommand");
         MSALog.wrLog(LOG_TAG+" onStartCommand",isLogEnable);
-        hour = settings.getString("HH", "9");
+
+        hour = settings.getString("HH", "09");
         minutes = settings.getString("MM", "30");
+
         Log.d(LOG_TAG, "hour = " + hour + " minutes = " + minutes);
         MSALog.wrLog(LOG_TAG+" hour = " + hour + " minutes = " + minutes, isLogEnable);
 
-        timer = new Timer();
+        if(timer != null) timer.cancel();
+        timer = new Timer("msaWeatherTimer");
         timerTask = new msaTimerTask();
-        timer.schedule(timerTask, 0, 60000);
+
+        SimpleDateFormat DTFormat = new SimpleDateFormat("yyyy/MM/dd kk:mm");
+        SimpleDateFormat DFormat  = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat TFormat  = new SimpleDateFormat("kk:mm");
+
+        Calendar calendar = Calendar.getInstance();
+        Date dNow = calendar.getTime();
+        Date startTime = calendar.getTime();
+
+        Log.i(LOG_TAG, "Now Time = "+TFormat.format(dNow));
+        MSALog.wrLog("Now Time = "+TFormat.format(dNow),isLogEnable);
+
+        Log.i(LOG_TAG, "Set Time = "+hour+":"+minutes);
+        MSALog.wrLog("Set Time = "+hour+":"+minutes,isLogEnable);
+
+        try {
+            if (TFormat.parse(hour+":"+minutes).after(TFormat.parse(TFormat.format(dNow)))) {
+                Log.i(LOG_TAG, "Set time > Now");
+                MSALog.wrLog("Set time > Now",isLogEnable);
+
+                startTime = DTFormat.parse(String.format("%s %s:%s", DFormat.format(dNow), hour, minutes));
+
+            } else {
+                Log.i(LOG_TAG, "Now > Set time");
+                MSALog.wrLog("Now > Set time",isLogEnable);
+
+                calendar.add(Calendar.DAY_OF_MONTH,1);
+                startTime = DTFormat.parse(String.format("%s %s:%s", DFormat.format(calendar.getTime()), hour, minutes));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Log.i(LOG_TAG, "startTime = "+DTFormat.format(startTime));
+        MSALog.wrLog("startTime = "+DTFormat.format(startTime),isLogEnable);
+
+        timer.schedule(timerTask, startTime, (3L*1000L));
 
 //        return super.onStartCommand(intent, flags, startId);
         return mStartMode;
@@ -122,6 +165,12 @@ public class MSAWeather_service extends Service {
 //        stopForeground(NOTIFY_ID);
         mNM.cancel(NOTIFY_ID);
 
+        // Останавливаем Таймер
+        if (timer!=null){
+            timer.cancel();
+            timer = null;
+        }
+
         MSALog.CloseLogFile(isLogEnable);
 
     }
@@ -147,8 +196,8 @@ public class MSAWeather_service extends Service {
 
             } catch (Exception e) {
                 Log.e("MSA Weather Exception from SERVICE", "GetWeather Error");
-                System.out.println("Exception " + e.getMessage());
-                MSALog.wrLog("Exception GetWeather" + e.getMessage(),isLogEnable);
+                System.out.println("Exception - " + e.getMessage());
+                MSALog.wrLog("Exception GetWeather - " + e.getMessage(),isLogEnable);
             }
 
             if (Utils.WeatherInfo.length > 0) {
@@ -168,7 +217,7 @@ public class MSAWeather_service extends Service {
                     smsMessage += weatherTXT[i];
                 }
                 Log.d("MSA Weather weather_data from SERVICE", smsMessage);
-                MSALog.wrLog("MSA Weather weather_data from SERVICE"+"\n"+smsMessage,isLogEnable);
+                MSALog.wrLog("MSA Weather weather_data from SERVICE:"+"\n"+smsMessage,isLogEnable);
             }
         }
     }
@@ -209,8 +258,8 @@ public class MSAWeather_service extends Service {
 
                     } catch (Exception e) {
                         Log.e("MSA Weather Exception from SERVICE", "SendSms Error");
-                        System.out.println("Exception " + e.getMessage());
-                        MSALog.wrLog("MSA Weather Exception from SERVICE"+ e.getMessage(), isLogEnable);
+                        System.out.println("Exception - " + e.getMessage());
+                        MSALog.wrLog("MSA Weather Exception from SERVICE - "+ e.getMessage(), isLogEnable);
 
                     }
                     String smsResText = "";
@@ -231,7 +280,7 @@ public class MSAWeather_service extends Service {
                     }
 
                     Log.d("MSA Weather SendSMS_result", smsResText);
-                    MSALog.wrLog("MSA Weather SendSMS_result"+"\n"+smsResText,isLogEnable);
+                    MSALog.wrLog("MSA Weather SendSMS_result:"+"\n"+smsResText,isLogEnable);
 
                 } else {
                     Log.e("MSA Weather from SERVICE", "Не получен ответ от сервиса отправки СМС.");
@@ -240,7 +289,7 @@ public class MSAWeather_service extends Service {
 
             try {
                 MSALog.wrLog(LOG_TAG+" PAUSE 3 sec.",isLogEnable);
-                Thread.sleep(3000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 MSALog.wrLog(LOG_TAG+" Exeption PAUSE 3 sec. "+e.getMessage(),isLogEnable);
@@ -254,12 +303,18 @@ public class MSAWeather_service extends Service {
 
             MSALog.wrLog(LOG_TAG+" RUN Timer BEGIN.",isLogEnable);
             // Берем время из системного календаря:
-            Calendar calendar = Calendar.getInstance();
-            String h = new SimpleDateFormat("k").format(calendar.getTime());
-            String m = new SimpleDateFormat("mm").format(calendar.getTime());
+//            Calendar calendar = Calendar.getInstance();
+//            String h = new SimpleDateFormat("kk").format(calendar.getTime());
+//            String m = new SimpleDateFormat("mm").format(calendar.getTime());
 
             getWeatherTask();
-            if (h.equals(hour) && m.equals(minutes)) sendSmsTask(weatherTXT);
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            sendSmsTask(weatherTXT);
+//            if (h.equals(hour) && m.equals(minutes)) sendSmsTask(weatherTXT);
 
 //            if (h.equals(hour) & m.equals(minutes)) getWeatherTask();
 //            if (h.equals(hour) & m.equals(String.format("%02d", Integer.parseInt(minutes) + 1)))
