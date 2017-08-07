@@ -132,7 +132,7 @@ public class MSAWeather_service extends Service {
         Log.i(LOG_TAG, "startTime = "+DTFormat.format(startTime));
         MSALog.wrLog("startTime = "+DTFormat.format(startTime),isLogEnable);
 
-        timer.schedule(timerTask, startTime, (60L*60L*1000L));
+        timer.schedule(timerTask, startTime, (Long.valueOf(settings.getString("PERIOD","12"))*60L*60L*1000L));
 
 //        return super.onStartCommand(intent, flags, startId);
         return mStartMode;

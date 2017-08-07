@@ -79,11 +79,13 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 //                "24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47",
 //                "48","49","50","51","52","53","54","55","56","57","58"};
         final String[] mins = {"00","05","10","15","20","25","30","35","40","45","50","55"};
+        final String[] periodArray = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24"};
+//        final Integer[] periodArray = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24};
         h_text = (TextView)findViewById(R.id.hour);
         m_text = (TextView)findViewById(R.id.minutes);
 
         set_BTN();
-
+//-------------- Часы ----------------------------------------------
         Spinner h_edit = (Spinner) findViewById(R.id.hourEdit);
         // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
         ArrayAdapter<String> adapterH = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, hours);
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         };
         h_edit.setOnItemSelectedListener(itemSelectedListenerH);
 
+//--------------------- Минуты------------------------------------------------
         Spinner m_edit = (Spinner)findViewById(R.id.minutesEdit);
         // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
         ArrayAdapter<String> adapterM = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mins);
@@ -141,6 +144,34 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             }
         };
         m_edit.setOnItemSelectedListener(itemSelectedListenerM);
+
+//--------------------- Период------------------------------------------------
+        Spinner p_edit = (Spinner)findViewById(R.id.periodEdit);
+        // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
+        ArrayAdapter<String> adapterP = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, periodArray);
+        // Определяем разметку для использования при выборе элемента
+        adapterP.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Применяем адаптер к элементу spinner
+        p_edit.setAdapter(adapterP);
+
+        int spinnerPositionP = adapterP.getPosition(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("PERIOD", "12"));
+        p_edit.setSelection(spinnerPositionP);
+
+        AdapterView.OnItemSelectedListener itemSelectedListenerP = new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                // Получаем выбранный объект
+                String itemP = (String) parent.getItemAtPosition(position);
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("PERIOD", String.valueOf(itemP)).commit();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        };
+        p_edit.setOnItemSelectedListener(itemSelectedListenerP);
     }
 
  // проверяем, доступно ли внешнее хранилище для чтения и записи
