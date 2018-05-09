@@ -193,12 +193,15 @@ public class MSAWeather_service extends Service {
 
 //        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        String owm_city = settings.getString("owm_city", "Kaliningrad,ru");
-        String owm_base_url = settings.getString("owm_base_url", "http://api.openweathermap.org/data/2.5/");
+        String owm_city = settings.getString("owm_city", "KALININGRAD,RU");
+        String owm_base_url = settings.getString("owm_base_url", "http://api.openweathermap.org/data/2.5");
         String owm_app_id = settings.getString("owm_api_key", "117d5fa1db04067b40a31da2c1b139ae");
         String owm_api_daily = settings.getString("owm_api_daily", "/forecast/daily?units=metric&cnt=2&lang=ru");
 
         String owm_url = owm_base_url + owm_api_daily + "&q=" + owm_city + "&APPID=" + owm_app_id;
+
+        Log.i("Weather URL created from Prefs: ", owm_url);
+        MSALog.wrLog("Weather URL created from Prefs: "+owm_url,isLogEnable);
 
         String result = Utils.MSAhttp(owm_url, "GET", isLogEnable);
 

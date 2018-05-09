@@ -43,11 +43,15 @@ public class Weather {
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String owm_city = settings.getString("owm_city","Kaliningrad,ru");
-        String owm_base_url = settings.getString("owm_base_url","http://api.openweathermap.org/data/2.5/");
+        String owm_base_url = settings.getString("owm_base_url","http://api.openweathermap.org/data/2.5");
         String owm_app_id = settings.getString("owm_api_key","117d5fa1db04067b40a31da2c1b139ae");
         String owm_api_daily = settings.getString("owm_api_daily","/forecast/daily?units=metric&cnt=2&lang=ru");
+        Boolean isLogEnable = settings.getBoolean("enable_log", false);
 
         String owm_url = owm_base_url+owm_api_daily+"&q="+owm_city+"&APPID="+owm_app_id;
+
+        Log.i("Weather URL created from Prefs: ", owm_url);
+  //      MSALog.wrLog("Weather URL created from Prefs: "+owm_url,isLogEnable);
 
         new DownloadDataTask() {
             @Override

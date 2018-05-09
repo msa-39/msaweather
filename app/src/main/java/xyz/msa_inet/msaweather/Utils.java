@@ -27,7 +27,8 @@ public class Utils {
     }
 
     public static String get_wind_dir(int deg) {
-        String[] l = {"С","СВ","В","ЮВ","Ю","ЮЗ","З","СЗ"};
+        String[] l0 = {"\u21d1", "\u21d7", "\u21db", "\u21d8", "\u21d3", "\u21d9", "\u21da", "\u21d6"};
+        String[] l1 = {"С","СВ","В","ЮВ","Ю","ЮЗ","З","СЗ"};
         int step;
         int min;
         int max;
@@ -40,7 +41,7 @@ public class Utils {
             if (i == 0 & deg > 360-45/2)
                 deg = deg - 360;
             if (deg >= min & deg <= max)
-                res = l[i];
+                res = l0[i] + l1[i];
         }
         return res;
     }
