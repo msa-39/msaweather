@@ -2,9 +2,11 @@ package xyz.msa_inet.msaweather;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.BatteryManager;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     TextView h_text; //= (TextView)findViewById(R.id.hour);
     TextView m_text; //= (TextView)findViewById(R.id.minutes);
 
+    TextView bat_status;
+
     private static final int REQUEST_PERMISSION_WRITE = 1001;
     private boolean permissionGranted;
 
@@ -70,6 +74,19 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+ //IntentFilter Служит неким фильтром данных, которые мы хотим получить.
+//ACTION_BATTERY_CHANGED - отслеживает изменение батареи
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+//Чтобы получить текущее состояние батареи в виде намерения, нужно вызвать registerReceiver, передав null в качестве приемника, как показано в коде ниже.
+        Intent battery = registerReceiver(null, ifilter);
+        int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        float batteryPct = (level / (float)scale) * 100;
+
+        bat_status = (TextView)findViewById(R.id.charge);
+        bat_status.setText(String.valueOf(batteryPct) + '%');
 
         startMSAServiceBTN = (Button)findViewById(R.id.startService);
         stopMSAServiceBTN = (Button)findViewById(R.id.stopService);

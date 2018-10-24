@@ -8,21 +8,42 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/charge_lable"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Заряд батареи: " />
+        <TextView
+            android:id="@+id/charge"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="80%" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/delim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/dt1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="25/07" />
+            android:layout_height="match_parent"
+            android:text="25/07/2017" />
         <ImageView
             android:id="@+id/im1"
             android:layout_width="30dp"
             android:layout_height="30dp" />
+
         <TextView
             android:id="@+id/dt2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="26/07" />
+            android:layout_height="match_parent"
+            android:text="26/07/2017" />
         <ImageView
             android:id="@+id/im2"
             android:layout_width="30dp"
