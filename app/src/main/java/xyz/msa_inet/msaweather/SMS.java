@@ -31,7 +31,7 @@ public class SMS {
     public static final String FIELD_SMS_STATUS_TEXT = "status_text";
 
 
-    public static void SendSms (Context context, String smsMSGTOsend, final OnCompleteListener listener){
+    public static void SendSms (Context context, String smsMSGTOsend, final OnCompleteListener listener, String smsgateid, String send_to){
 
         String smsUTF = null;
         String smsTOsend = "";
@@ -39,9 +39,14 @@ public class SMS {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 
         String sms_gate_base_url = settings.getString("sms_gate_url","http://sms.ru/sms/send");
-        String sms_gate_id = settings.getString("sms_gate_id","108A516B-2BC4-DAC3-3F91-AFF209C8D1F8");
-        final String to_phone = settings.getString("tophone","79263090367");
-        if (settings.getBoolean("testsms",true)) is_test_sms = "&test=1"; else is_test_sms = "";
+        String sms_gate_id;
+        if (smsgateid != null) sms_gate_id = smsgateid;
+            else sms_gate_id = settings.getString("sms_gate_id","108A516B-2BC4-DAC3-3F91-AFF209C8D1F8");
+        final String to_phone;
+        if (send_to != null) to_phone = send_to;
+            else to_phone = settings.getString("tophone","79263090367");
+        if (settings.getBoolean("testsms",true)) is_test_sms = "&test=1";
+            else is_test_sms = "";
         String sms_gate_url = sms_gate_base_url+"?api_id="+sms_gate_id+"&to="+to_phone+"&json=1"+is_test_sms+"&text=";
 
         if (smsMSGTOsend.length() > 69) smsTOsend = smsMSGTOsend.substring(0,69);

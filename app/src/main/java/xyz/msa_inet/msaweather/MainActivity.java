@@ -92,10 +92,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         stopMSAServiceBTN = (Button)findViewById(R.id.stopService);
 
         final String[] hours = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"};
-//        final String[] mins = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23",
-//                "24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47",
-//                "48","49","50","51","52","53","54","55","56","57","58"};
-        final String[] mins = {"00","05","10","15","20","25","30","35","40","45","50","55"};
+        final String[] mins = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23",
+                               "24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47",
+                               "48","49","50","51","52","53","54","55","56","57","58","59"};
+//        final String[] mins = {"00","05","10","15","20","25","30","35","40","45","50","55"};
         final String[] periodArray = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24"};
 //        final Integer[] periodArray = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24};
         h_text = (TextView)findViewById(R.id.hour);
@@ -312,8 +312,14 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         if (Utils.WeatherInfo.length > 0 ) {
             ImageView[] img = new ImageView[Utils.WeatherInfo.length];
             for (int i = 0; i < Utils.WeatherInfo.length; ++i) {
-                if (i < 1) img[i] = (ImageView)findViewById(R.id.im1);
-                    else img[i] = (ImageView)findViewById(R.id.im2);
+                if (i < 1) {
+                    img[i] = (ImageView)findViewById(R.id.im1);
+                    ((TextView)findViewById(R.id.dt1)).setText(Utils.WeatherInfo[i].date);
+                }
+                    else {
+                    img[i] = (ImageView)findViewById(R.id.im2);
+                    ((TextView)findViewById(R.id.dt2)).setText(Utils.WeatherInfo[i].date);
+                }
 
                 weatherTXT[i] = Utils.WeatherInfo[i].date;
                 weatherTXT[i] += " " + Utils.WeatherInfo[i].weather;
@@ -343,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         for (int i = 0; i < weatherTXT.length; ++i) {
             try {
-                SMS.SendSms(this,weatherTXT[i],this);
+                SMS.SendSms(this,weatherTXT[i],this, null, null);
                 Thread.sleep(3000);
 
             } catch (Exception e){
